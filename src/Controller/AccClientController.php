@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\AccClient; // Assuming your entity class is AccClient
+use App\Entity\AccClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
