@@ -4,11 +4,3 @@ controllers:
         namespace: App\Controller
     type: attribute
 
-test_route:
-    path: /test
-    controller: App\Controller\TestController::index
-
-user_create:
-    path: /api/users
-    controller: 'App\Controller\UserController::createUser'
-    methods: [POST]
