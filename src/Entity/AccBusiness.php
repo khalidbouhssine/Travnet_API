@@ -7,21 +7,36 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_ID', columns: ['id'])]
-class AccClient implements UserInterface
+class AccBusiness implements UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 30)]
-    private ?string $fullName = null;
+    #[ORM\Column(type: 'string', length: 25, unique: true)]
+    private ?string $proId = null;
+
+    #[ORM\Column(type: 'string', length: 15)]
+    private ?string $firstName = null;
+
+    #[ORM\Column(type: 'string', length: 15)]
+    private ?string $lastName = null;
 
     #[ORM\Column(type: 'string', length: 50, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column(type: 'string', length: 10, nullable: false)]
+    #[ORM\Column(type: 'string', length: 10)]
     private ?string $phone = null;
+
+    #[ORM\Column(type: 'string', length: 10, unique: true)]
+    private ?string $cinOrPassport = null;
+
+    #[ORM\Column(type: 'string', length: 2)]
+    private ?string $role = null;
+
+    #[ORM\Column(type: 'string', length: 15)]
+    private ?string $nationality = null;
 
     #[ORM\Column(type: 'string', length: 64)]
     private ?string $password = null;
@@ -41,11 +56,27 @@ class AccClient implements UserInterface
         return $this;
     }
 
-    public function getFullName(): ?string{
-        return $this->fullName;
+    public function getProId(): ?int{
+        return $this->proId;
     }
-    public function setFullName(string $fullName): static{
-        $this->fullName = $fullName;
+    public function setProId(string $proId): static{
+        $this->proId = $proId;
+        return $this;
+    }
+
+    public function getFirstName(): ?string{
+        return $this->firstName;
+    }
+    public function setFirstName(string $firstName): static{
+        $this->firstName = $firstName;
+        return $this;
+    }
+
+    public function getLastName(): ?string{
+        return $this->lastName;
+    }
+    public function setLastName(string $lastName): static{
+        $this->lastName = $lastName;
         return $this;
     }
 
@@ -62,6 +93,33 @@ class AccClient implements UserInterface
     }
     public function setPhone(string $phone): static{
         $this->phone = $phone;
+        return $this;
+    }
+
+    public function getCinOrPassport(): ?string{
+        return $this->cinOrPassport;
+    }
+    public function setCinOrPassport(string $cinOrPassport): static{
+        $this->cinOrPassport = $cinOrPassport;
+        return $this;
+    }
+
+    public function getRole(): ?string{
+        return $this->role;
+    }
+    public function setRole(string $role): static{
+        if ($role !== null && !in_array($role, ['PH', 'AV'])) {
+            throw new \InvalidArgumentException('Invalid role. Role must be either "WM" or "WX".');
+        }
+        $this->role = $role;
+        return $this;
+    }
+
+    public function getNationality(): ?string{
+        return $this->nationality;
+    }
+    public function setNationality(string $nationality): static{
+        $this->nationality = $nationality;
         return $this;
     }
 
