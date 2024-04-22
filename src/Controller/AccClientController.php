@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-
+use App\Entity\AccBusiness;
 use App\Entity\AccClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,30 +25,42 @@ class AccClientController extends AbstractController
 
         // Validate incoming JSON data
         if (!$data || !isset($data['fullName'], $data['email'], $data['phone'], $data['password'])) {
-            return $this->json(['error' => 'Invalid JSON data'], 400);
+            return $this->json(['stateData' => 0], 200);
+        }
+        $emailExistsInAccBusiness = $this->entityManager->getRepository(AccBusiness::class)->findOneBy(['email' => $data['email']]);
+         if($emailExistsInAccBusiness){
+            return $this->json([
+                'existUser' => 1
+            ]); 
+         }else{
+                // Create new AccClient entity and set its properties
+            $user = new AccClient();
+            $user->setFullName($data['fullName']);
+            $user->setEmail($data['email']);
+            $user->setPhone($data['phone']);
+            $user->setPassword($data['password']);
+            $user->setValide(0);
+            $user->setBlock(0);
+
+            try {
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
+                return $this->json([
+                    'existUser' => 0,
+                    'state' => 1,
+                    'userId' => $user->getId()
+                    
+                ]);
+            } catch (\Exception $e) {
+                // Return JSON response with error message
+                return $this->json([
+                    'existUser' => 0,
+                    'state' => 0
+                ]);
+            }
         }
 
-        // Create new AccClient entity and set its properties
-        $user = new AccClient();
-        $user->setFullName($data['fullName']);
-        $user->setEmail($data['email']);
-        $user->setPhone($data['phone']);
-        $user->setPassword($data['password']);
-        $user->setValide(0);
-        $user->setBlock(0);
-
-        try {
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
-            return $this->json([
-                'state' => 1,
-                'userId' => $user->getId()
-            ]);
-        } catch (\Exception $e) {
-            // Return JSON response with error message
-            return $this->json([
-                'state' => 0
-            ]);
-        }
     }
+
+     
 }

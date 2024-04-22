@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\AccBusiness;
+use App\Entity\AccClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,39 +26,49 @@ class AccBusinessController extends AbstractController
 
         // Validate incoming JSON data
         if (!$data || !isset($data['firstName'], $data['lastName'], $data['email'], $data['phone'], $data['cinOrPassport'], $data['role'], $data['nationality'], $data['password'])) {
-            return $this->json(['stateData' => 0], 400);
+            return $this->json(['stateData' => 0], 200);
+        }
+        $emailExistsInAccClient = $this->entityManager->getRepository(AccClient::class)->findOneBy(['email' => $data['email']]);
+        if($emailExistsInAccClient){
+            return $this->json([
+                'existUser' => 1
+            ]);
+        }else{
+            $user = new AccBusiness();
+            $user->setProId(generateUserId());
+            $user->setFirstName($data['firstName']);
+            $user->setLastName($data['lastName']);
+            $user->setEmail($data['email']);
+            $user->setPhone($data['phone']);
+            $user->setCinOrPassport($data['cinOrPassport']);
+            $user->setRole($data['role']);
+            $user->setNationality($data['nationality']);
+            $user->setPassword($data['password']);
+            $user->setValide(0);
+            $user->setBlock(0);
+
+            try {
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
+                return $this->json([
+                    'existUser' => 0,
+                    'stateData' => 1,
+                    'stateStore' => 1,
+                    'userId' => $user->getId()
+                ]);
+            } catch (\Exception $e) {
+                // Return JSON response with error message
+                return $this->json([
+                    'existUser' => 0,
+                    'stateData' => 1,
+                    'stateStore' => 0
+                ]);
+            }
         }
 
-        $user = new AccBusiness();
-        $user->setProId(generateUserId());
-        $user->setFirstName($data['firstName']);
-        $user->setLastName($data['lastName']);
-        $user->setEmail($data['email']);
-        $user->setPhone($data['phone']);
-        $user->setCinOrPassport($data['cinOrPassport']);
-        $user->setRole($data['role']);
-        $user->setNationality($data['nationality']);
-        $user->setPassword($data['password']);
-        $user->setValide(0);
-        $user->setBlock(0);
 
-        try {
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
-            return $this->json([
-                'stateData' => 1,
-                'stateStore' => 1,
-                'userId' => $user->getId()
-            ]);
-        } catch (\Exception $e) {
-            // Return JSON response with error message
-            return $this->json([
-                'stateData' => 1,
-                'stateStore' => 0
-            ]);
-        }
     }
-
+        
     
 }
 

@@ -1,0 +1,3 @@
+framework:
+    mailer:
+        dsn: 'smtp://smtp.gmail.com:587?encryption=starttls&auth_mode=login&username=travnetcompany@gmail.com&password=ekyjhmqjnmnvcedk'
